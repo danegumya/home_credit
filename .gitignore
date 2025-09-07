@@ -1,0 +1,19 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.env
+.ipynb_checkpoints
+
+# data & outputs
+data/
+outputs/
+!outputs/.gitkeep
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+
+kaggle.json
