@@ -274,11 +274,9 @@ def add_more_application_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # Load Application Data
-print("Reading application files...")
 app_train = pd.read_csv(os.path.join(DATA_DIR, "application_train.csv"))
 app_test  = pd.read_csv(os.path.join(DATA_DIR, "application_test.csv"))
 
-print("Initial shapes:", app_train.shape, app_test.shape)
 
 y = app_train["TARGET"].astype(int).values
 train_id = app_train["SK_ID_CURR"].values
@@ -292,7 +290,6 @@ app = add_more_application_features(app)
 app, app_cat_cols = one_hot_encoder(app, nan_as_category=True)
 
 # Bureau + Bureau Balance
-print("Processing bureau & bureau_balance...")
 bureau = pd.read_csv(os.path.join(DATA_DIR, "bureau.csv"))
 bb = pd.read_csv(os.path.join(DATA_DIR, "bureau_balance.csv"))
 
@@ -349,7 +346,6 @@ del bureau
 gc.collect()
 
 # Previous Application
-print("Processing previous_application...")
 prev = pd.read_csv(os.path.join(DATA_DIR, "previous_application.csv"))
 prev = days_fix(prev)
 prev, prev_cat_cols = one_hot_encoder(prev, nan_as_category=True)
@@ -359,7 +355,6 @@ prev_agg_cat = agg_categorical(prev, "SK_ID_CURR", "PREV")
 prev_agg = prev_agg_num if prev_agg_cat is None else prev_agg_num.merge(prev_agg_cat, on="SK_ID_CURR", how="left")
 
 # POS_CASH_balance
-print("Processing POS_CASH_balance...")
 pos = pd.read_csv(os.path.join(DATA_DIR, "POS_CASH_balance.csv"))
 pos, pos_cat_cols = one_hot_encoder(pos, nan_as_category=True)
 
@@ -370,7 +365,6 @@ del pos
 gc.collect()
 
 # Installments Payments
-print("Processing installments_payments...")
 ins = pd.read_csv(os.path.join(DATA_DIR, "installments_payments.csv"))
 ins = days_fix(ins)
 # helpful deltas
@@ -399,7 +393,6 @@ del ins
 gc.collect()
 
 # Credit Card Balance
-print("Processing credit_card_balance...")
 ccb = pd.read_csv(os.path.join(DATA_DIR, "credit_card_balance.csv"))
 # Utilization & payment ratios
 eps = 1e-9
@@ -420,7 +413,6 @@ del ccb
 gc.collect()
 
 # Merge all engineered tables into applications
-print("Merging engineered features...")
 for block in [bureau_agg, prev_agg, pos_agg, ins_agg, ccb_agg]:
     app = app.merge(block, on="SK_ID_CURR", how="left")
     del block
@@ -491,7 +483,6 @@ def train_lgb_one_seed(seed, X, y, feature_cols, X_test, n_folds=5, esr=200, bas
     return oof_s, test_s, gain_s
 
 
-print("Starting training (multi-seed, rank-bagging)...")
 
 
 # class imbalance calc (in case of using them)
@@ -562,4 +553,3 @@ oof_df = pd.DataFrame({"SK_ID_CURR": train_id, "OOF_PRED": oof_pred.astype(np.fl
 oof_df.to_csv(os.path.join(OUT_DIR, "oof_predictions.csv"), index=False)
 print(f"Wrote {os.path.join(OUT_DIR, 'oof_predictions.csv')}")
 
-print("\nDone.")
